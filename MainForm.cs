@@ -2466,9 +2466,9 @@ public sealed class MainForm : Form
             web.CoreWebView2.Settings.AreDevToolsEnabled=false;
             web.CoreWebView2.SetVirtualHostNameToFolderMapping("lealai.local",Path.Combine(AppContext.BaseDirectory,"Assets"),CoreWebView2HostResourceAccessKind.Allow);
             var html = "<!doctype html><html><head><style>"
-                + "html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#031224}"
+                + "html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent}"
                 + ".stage{position:relative;width:100%;height:100%;overflow:hidden}"
-                + "video{position:absolute;left:0;bottom:0;width:100%;height:100%;object-fit:contain;background:#031224;"
+                + "video{position:absolute;left:0;bottom:0;width:100%;height:100%;object-fit:contain;background:transparent;"
                 + "clip-path:inset(100% 0 0 0);opacity:0;filter:blur(8px);transform:translateY(20px);"
                 + "animation:materialize 1.55s cubic-bezier(.2,.72,.2,1) forwards}"
                 + ".smoke{position:absolute;left:50%;bottom:3%;width:190px;height:130px;transform:translateX(-50%);"
@@ -2516,7 +2516,7 @@ public sealed class MainForm : Form
 
         var web=new WebView2{
             Dock=DockStyle.Fill,
-            DefaultBackgroundColor=Color.FromArgb(3,18,36)
+            DefaultBackgroundColor=Color.Transparent
         };
         panel.Controls.Add(web);
         Controls.Add(panel);
