@@ -1,4 +1,4 @@
-name: Gerar Setup LEAL INFO PDV V10.118
+name: Gerar Setup LEAL INFO PDV V10.119
 
 on:
   workflow_dispatch:
@@ -9,6 +9,7 @@ permissions:
 jobs:
   gerar-setup:
     runs-on: windows-latest
+
     steps:
       - name: Baixar projeto
         uses: actions/checkout@v4
@@ -21,7 +22,7 @@ jobs:
       - name: Restaurar dependencias
         run: dotnet restore LealInfoPDV.csproj
 
-      - name: Publicar PDV self-contained
+      - name: Publicar LEAL INFO PDV
         run: dotnet publish LealInfoPDV.csproj -c Release -r win-x64 --self-contained true -o publish_setup
 
       - name: Instalar Inno Setup
@@ -32,9 +33,9 @@ jobs:
         shell: powershell
         run: '& "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "INSTALADOR_LEAL_INFO_PDV_V10_118.iss"'
 
-      - name: Disponibilizar Setup para download
+      - name: Guardar Setup
         uses: actions/upload-artifact@v4
         with:
-          name: Setup_LEAL_INFO_PDV_V10_118
+          name: Setup_LEAL_INFO_PDV_V10_119_ETAPA_2
           path: SETUP_PRONTO/Setup_LEAL_INFO_PDV_V10_118.exe
           if-no-files-found: error
