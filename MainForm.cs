@@ -2452,7 +2452,7 @@ public sealed class MainForm : Form
 
     private void ShowLealAiDemo()
     {
-        if(lealAiPanel!=null && !lealAiPanel.IsDisposed){lealAiPanel.Close();lealAiPanel=null;}
+        if(lealAiPanel!=null && !lealAiPanel.IsDisposed){Controls.Remove(lealAiPanel);lealAiPanel.Dispose();lealAiPanel=null;}
         ShowLealAiPanel(false);
     }
 
