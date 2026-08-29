@@ -2406,7 +2406,7 @@ public sealed class MainForm : Form
 
     // V10.118 — LEAL AI premium: avatar animado com voz incorporada + dados reais do PDV.
     private Button? lealAiButton;
-    private Form? lealAiPanel;
+    private Panel? lealAiPanel;
 
     private void BuildLealAiButton()
     {
@@ -2472,7 +2472,7 @@ public sealed class MainForm : Form
 
     private void ShowLealAiPanel(bool dailyGreeting)
     {
-        if(lealAiPanel!=null && !lealAiPanel.IsDisposed){lealAiPanel.Activate();return;}
+        if(lealAiPanel!=null && !lealAiPanel.IsDisposed){lealAiPanel.BringToFront();return;}
         var data=GetLealAiSummary(); var hour=DateTime.Now.Hour;
         var greeting=hour<12?"BOM DIA":hour<18?"BOA TARDE":"BOA NOITE";
         var gender=GetLealAiGender(); var avatarName=gender=="female"?"LIA":"LEO";
@@ -2480,7 +2480,14 @@ public sealed class MainForm : Form
         string insight=data.lowStock>0?$"{data.lowStock} produto(s) precisam de atenção no estoque.":"Nenhum alerta crítico de estoque neste momento.";
         string trend=data.salesCount>0?$"{data.salesCount} venda(s) hoje  •  R$ {data.salesTotal:N2}  •  {data.aboveAverage} produto(s) acima da média.":"Ainda não há vendas registradas hoje.";
 
-        var f=new Form{Text="LEAL AI — Assistente Inteligente",StartPosition=FormStartPosition.Manual,Width=720,Height=450,FormBorderStyle=FormBorderStyle.FixedToolWindow,BackColor=Color.FromArgb(3,18,36),TopMost=true,ShowInTaskbar=false,Font=new Font("Segoe UI",10)}; lealAiPanel=f;
+        var panel=new Panel{
+            Width=Math.Min(720,Math.Max(560,ClientSize.Width-40)),
+            Height=Math.Min(450,Math.Max(360,ClientSize.Height-status.Height-80)),
+            BackColor=Color.FromArgb(3,18,36),
+            BorderStyle=BorderStyle.FixedSingle
+        };
+        lealAiPanel=panel;
+
         var left=new Panel{Dock=DockStyle.Left,Width=250,BackColor=Color.FromArgb(2,14,28)};
         var web=new WebView2{Dock=DockStyle.Fill,DefaultBackgroundColor=Color.FromArgb(3,18,36)}; left.Controls.Add(web);
         var head=new Label{Text=$"LEAL AI  •  {avatarName}\n{greeting}",Dock=DockStyle.Top,Height=94,Padding=new Padding(22,12,10,6),ForeColor=Color.White,Font=new Font("Segoe UI",15,FontStyle.Bold)};
@@ -2490,13 +2497,44 @@ public sealed class MainForm : Form
         var close=Btn("FECHAR",82,Color.FromArgb(4,70,112));
         var replay=Btn("▶ REPETIR FALA",130,Color.FromArgb(0,120,170));
         var switcher=Btn(gender=="female"?"♀ FEMININO":"♂ MASCULINO",130,Color.FromArgb(0,163,224));
-        close.Click+=(_,_)=>f.Close();
+
+        void CloseAi()
+        {
+            if(lealAiPanel==null)return;
+            var old=lealAiPanel; lealAiPanel=null;
+            Controls.Remove(old); old.Dispose();
+            lealAiButton?.BringToFront();
+        }
+
+        close.Click+=(_,_)=>CloseAi();
         replay.Click+=async (_,_)=>{try{if(web.CoreWebView2!=null)await web.ExecuteScriptAsync("const v=document.getElementById('v');v.currentTime=0;v.muted=false;v.volume=1;v.play();");}catch{}};
-        switcher.Click+=(_,_)=>{var next=GetSetting("leal_ai_gender","auto")=="female"?"male":"female"; if(GetSetting("leal_ai_gender","auto")=="auto")next=gender=="female"?"male":"female"; SetSetting("leal_ai_gender",next); f.Close(); ShowLealAiPanel(false);};
+        switcher.Click+=(_,_)=>{
+            var next=GetSetting("leal_ai_gender","auto")=="female"?"male":"female";
+            if(GetSetting("leal_ai_gender","auto")=="auto")next=gender=="female"?"male":"female";
+            SetSetting("leal_ai_gender",next);
+            CloseAi();
+            ShowLealAiPanel(false);
+        };
+
         bottom.Controls.Add(close);bottom.Controls.Add(replay);bottom.Controls.Add(switcher);
         var right=new Panel{Dock=DockStyle.Fill,BackColor=Color.FromArgb(3,18,36)}; right.Controls.Add(body);right.Controls.Add(bottom);right.Controls.Add(head);
-        f.Controls.Add(right);f.Controls.Add(left); f.FormClosed+=(_,_)=>lealAiPanel=null;
-        var area=Screen.FromControl(this).WorkingArea; f.Left=area.Right-f.Width-22;f.Top=area.Bottom-f.Height-22; f.Show(this);
+        panel.Controls.Add(right);panel.Controls.Add(left);
+        Controls.Add(panel);
+
+        void PosAi()
+        {
+            if(lealAiPanel==null || lealAiPanel.IsDisposed)return;
+            lealAiPanel.Left=Math.Max(12,ClientSize.Width-lealAiPanel.Width-22);
+            lealAiPanel.Top=Math.Max(80,ClientSize.Height-lealAiPanel.Height-status.Height-18);
+            lealAiPanel.BringToFront();
+            lealAiButton?.BringToFront();
+        }
+        PosAi();
+        EventHandler? resizeHandler=null;
+        resizeHandler=(_,_)=>PosAi();
+        Resize+=resizeHandler;
+        panel.Disposed+=(_,_)=>{ if(resizeHandler!=null) Resize-=resizeHandler; };
+
         InitLealAiVideo(web,videoFile);
     }
 
