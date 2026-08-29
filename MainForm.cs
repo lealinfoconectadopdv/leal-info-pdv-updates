@@ -2466,33 +2466,36 @@ public sealed class MainForm : Form
             web.CoreWebView2.Settings.AreDevToolsEnabled=false;
             web.CoreWebView2.SetVirtualHostNameToFolderMapping("lealai.local",Path.Combine(AppContext.BaseDirectory,"Assets"),CoreWebView2HostResourceAccessKind.Allow);
             var html = "<!doctype html><html><head><style>"
-                + "html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent}"
+                + "html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#031224}"
                 + ".stage{position:relative;width:100%;height:100%;overflow:hidden}"
-                + "video{position:absolute;left:0;bottom:0;width:100%;height:100%;object-fit:contain;background:transparent;"
-                + "clip-path:inset(100% 0 0 0);opacity:0;filter:blur(8px);transform:translateY(20px);"
-                + "animation:materialize 1.55s cubic-bezier(.2,.72,.2,1) forwards}"
-                + ".smoke{position:absolute;left:50%;bottom:3%;width:190px;height:130px;transform:translateX(-50%);"
-                + "opacity:0;filter:blur(16px);background:"
-                + "radial-gradient(ellipse at 50% 80%,rgba(180,235,255,.78),rgba(60,165,225,.32) 40%,transparent 72%),"
-                + "radial-gradient(ellipse at 30% 50%,rgba(210,245,255,.45),transparent 58%),"
-                + "radial-gradient(ellipse at 72% 48%,rgba(100,200,255,.40),transparent 62%);"
-                + "animation:smoke 1.7s ease-out forwards}"
-                + ".glow{position:absolute;left:50%;bottom:2%;width:155px;height:42px;transform:translateX(-50%);"
-                + "border-radius:50%;background:radial-gradient(ellipse,rgba(90,205,255,.75),rgba(20,115,180,.18) 55%,transparent 76%);"
-                + "filter:blur(8px);opacity:0;animation:glow 1.7s ease-out forwards}"
-                + "@keyframes materialize{0%{clip-path:inset(100% 0 0 0);opacity:0;filter:blur(11px);transform:translateY(20px)}"
-                + "30%{opacity:.72}100%{clip-path:inset(0 0 0 0);opacity:1;filter:blur(0);transform:translateY(0)}}"
-                + "@keyframes smoke{0%{opacity:0;transform:translate(-50%,25px) scale(.6)}28%{opacity:.9}"
-                + "70%{opacity:.42;transform:translate(-50%,-42px) scale(1.25)}100%{opacity:0;transform:translate(-50%,-95px) scale(1.6)}}"
-                + "@keyframes glow{0%{opacity:0;transform:translateX(-50%) scale(.4)}30%{opacity:.95}"
-                + "100%{opacity:0;transform:translateX(-50%) scale(1.35)}}"
-                + "</style></head><body><div class='stage'><div class='glow'></div><div class='smoke'></div>"
+                + "video{position:absolute;z-index:3;left:0;bottom:0;width:100%;height:100%;object-fit:contain;background:transparent;"
+                + "clip-path:inset(100% 0 0 0);opacity:0;filter:blur(10px);transform:translateY(34px) scale(.96);"
+                + "animation:materialize 2.15s cubic-bezier(.16,.72,.22,1) forwards}"
+                + ".smokeBase,.smokeLeft,.smokeRight,.smokeCore{position:absolute;z-index:4;left:50%;pointer-events:none;opacity:0}"
+                + ".smokeBase{bottom:-2%;width:330px;height:175px;transform:translateX(-50%);filter:blur(18px);"
+                + "background:radial-gradient(ellipse at 50% 82%,rgba(225,250,255,.95) 0%,rgba(105,205,255,.72) 24%,rgba(45,135,210,.34) 48%,transparent 74%);animation:smokeBase 2.7s ease-out forwards}"
+                + ".smokeCore{bottom:1%;width:145px;height:330px;transform:translateX(-50%);filter:blur(15px);"
+                + "background:radial-gradient(ellipse at 50% 88%,rgba(230,252,255,.88),rgba(100,210,255,.56) 30%,rgba(45,145,220,.22) 58%,transparent 76%);animation:smokeCore 2.55s cubic-bezier(.2,.65,.25,1) forwards}"
+                + ".smokeLeft{bottom:4%;width:190px;height:260px;transform:translateX(-50%) rotate(-12deg);filter:blur(17px);"
+                + "background:radial-gradient(ellipse at 68% 82%,rgba(210,248,255,.72),rgba(80,185,245,.38) 38%,transparent 70%);animation:wispLeft 2.65s ease-out forwards}"
+                + ".smokeRight{bottom:4%;width:190px;height:260px;transform:translateX(-50%) rotate(12deg);filter:blur(17px);"
+                + "background:radial-gradient(ellipse at 32% 82%,rgba(210,248,255,.72),rgba(80,185,245,.38) 38%,transparent 70%);animation:wispRight 2.65s ease-out forwards}"
+                + ".glow{position:absolute;z-index:2;left:50%;bottom:0;width:280px;height:65px;transform:translateX(-50%);border-radius:50%;"
+                + "background:radial-gradient(ellipse,rgba(150,230,255,.95),rgba(40,150,225,.42) 45%,transparent 75%);filter:blur(10px);opacity:0;animation:glow 2.5s ease-out forwards}"
+                + "@keyframes materialize{0%{clip-path:inset(100% 0 0 0);opacity:0;filter:blur(13px);transform:translateY(42px) scale(.94)}"
+                + "22%{opacity:.28}55%{opacity:.82;filter:blur(4px)}100%{clip-path:inset(0 0 0 0);opacity:1;filter:blur(0);transform:translateY(0) scale(1)}}"
+                + "@keyframes smokeBase{0%{opacity:0;transform:translate(-50%,35px) scale(.45)}18%{opacity:1}55%{opacity:.88;transform:translate(-50%,-10px) scale(1.12)}100%{opacity:0;transform:translate(-50%,-95px) scale(1.75)}}"
+                + "@keyframes smokeCore{0%{opacity:0;transform:translate(-50%,85px) scale(.42,.28)}18%{opacity:.95}58%{opacity:.78;transform:translate(-50%,-35px) scale(.82,1.12)}100%{opacity:0;transform:translate(-50%,-190px) scale(1.18,1.48)}}"
+                + "@keyframes wispLeft{0%{opacity:0;transform:translate(-50%,55px) rotate(-5deg) scale(.35)}22%{opacity:.82}62%{opacity:.58;transform:translate(-92%,-50px) rotate(-24deg) scale(1.05)}100%{opacity:0;transform:translate(-128%,-170px) rotate(-38deg) scale(1.45)}}"
+                + "@keyframes wispRight{0%{opacity:0;transform:translate(-50%,55px) rotate(5deg) scale(.35)}22%{opacity:.82}62%{opacity:.58;transform:translate(-8%,-50px) rotate(24deg) scale(1.05)}100%{opacity:0;transform:translate(28%,-170px) rotate(38deg) scale(1.45)}}"
+                + "@keyframes glow{0%{opacity:0;transform:translateX(-50%) scale(.25)}20%{opacity:1}65%{opacity:.65;transform:translateX(-50%) scale(1.18)}100%{opacity:0;transform:translateX(-50%) scale(1.65)}}"
+                + "</style></head><body><div class='stage'><div class='glow'></div><div class='smokeBase'></div><div class='smokeCore'></div><div class='smokeLeft'></div><div class='smokeRight'></div>"
                 + "<video id='v' autoplay playsinline preload='auto'><source src='https://lealai.local/" + file + "' type='video/mp4'></video>"
                 + "</div><script>const v=document.getElementById('v');function start(){v.muted=false;v.volume=1;"
                 + "const p=v.play();if(p&&p.catch)p.catch(()=>setTimeout(start,180));}"
-                + "v.addEventListener('loadedmetadata',()=>setTimeout(start,1150),{once:true});"
-                + "v.addEventListener('canplay',()=>setTimeout(start,1150),{once:true});"
-                + "setTimeout(start,1350);setTimeout(start,1750);</script></body></html>";
+                + "v.addEventListener('loadedmetadata',()=>setTimeout(start,1550),{once:true});"
+                + "v.addEventListener('canplay',()=>setTimeout(start,1550),{once:true});"
+                + "setTimeout(start,1750);setTimeout(start,2150);</script></body></html>";
             web.NavigateToString(html);
         } catch { }
     }
@@ -2516,7 +2519,7 @@ public sealed class MainForm : Form
 
         var web=new WebView2{
             Dock=DockStyle.Fill,
-            DefaultBackgroundColor=Color.Transparent
+            DefaultBackgroundColor=Color.FromArgb(3,18,36)
         };
         panel.Controls.Add(web);
         Controls.Add(panel);
