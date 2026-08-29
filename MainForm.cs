@@ -2470,46 +2470,72 @@ public sealed class MainForm : Form
         } catch { }
     }
 
-    private async void ShowLealAiPanel(bool dailyGreeting)
+    private void ShowLealAiPanel(bool dailyGreeting)
     {
         if(lealAiPanel!=null && !lealAiPanel.IsDisposed){lealAiPanel.BringToFront();return;}
-        var gender=GetLealAiGender();
+        var data=GetLealAiSummary(); var hour=DateTime.Now.Hour;
+        var greeting=hour<12?"BOM DIA":hour<18?"BOA TARDE":"BOA NOITE";
+        var gender=GetLealAiGender(); var avatarName=gender=="female"?"LIA":"LEO";
         var videoFile=gender=="female"?"leal_ai_feminino.mp4":"leal_ai_masculino.mp4";
+        string insight=data.lowStock>0?$"{data.lowStock} produto(s) precisam de atenção no estoque.":"Nenhum alerta crítico de estoque neste momento.";
+        string trend=data.salesCount>0?$"{data.salesCount} venda(s) hoje  •  R$ {data.salesTotal:N2}  •  {data.aboveAverage} produto(s) acima da média.":"Ainda não há vendas registradas hoje.";
 
-        var host=new Panel{Width=300,Height=390,BackColor=Color.FromArgb(3,18,36),BorderStyle=BorderStyle.None};
-        lealAiPanel=host;
-        var web=new WebView2{Dock=DockStyle.Fill,DefaultBackgroundColor=Color.FromArgb(3,18,36)};
-        host.Controls.Add(web); Controls.Add(host);
+        var panel=new Panel{
+            Width=Math.Min(720,Math.Max(560,ClientSize.Width-40)),
+            Height=Math.Min(450,Math.Max(360,ClientSize.Height-status.Height-80)),
+            BackColor=Color.FromArgb(3,18,36),
+            BorderStyle=BorderStyle.FixedSingle
+        };
+        lealAiPanel=panel;
 
-        void PosAi(){
-            if(lealAiPanel==null||lealAiPanel.IsDisposed)return;
+        var left=new Panel{Dock=DockStyle.Left,Width=250,BackColor=Color.FromArgb(2,14,28)};
+        var web=new WebView2{Dock=DockStyle.Fill,DefaultBackgroundColor=Color.FromArgb(3,18,36)}; left.Controls.Add(web);
+        var head=new Label{Text=$"LEAL AI  •  {avatarName}\n{greeting}",Dock=DockStyle.Top,Height=94,Padding=new Padding(22,12,10,6),ForeColor=Color.White,Font=new Font("Segoe UI",15,FontStyle.Bold)};
+        var body=new Label{Text=$"ANÁLISE INTELIGENTE DO PDV\n\n{insight}\n\n{trend}",Dock=DockStyle.Fill,Padding=new Padding(24,14,24,8),ForeColor=Color.FromArgb(205,235,248),Font=new Font("Segoe UI",11),TextAlign=ContentAlignment.TopLeft};
+        var bottom=new FlowLayoutPanel{Dock=DockStyle.Bottom,Height=64,FlowDirection=FlowDirection.RightToLeft,Padding=new Padding(10),BackColor=Color.FromArgb(4,35,62)};
+        Button Btn(string t,int w,Color c){var b=new Button{Text=t,Width=w,Height=38,FlatStyle=FlatStyle.Flat,BackColor=c,ForeColor=Color.White};b.FlatAppearance.BorderSize=0;return b;}
+        var close=Btn("FECHAR",82,Color.FromArgb(4,70,112));
+        var replay=Btn("▶ REPETIR FALA",130,Color.FromArgb(0,120,170));
+        var switcher=Btn(gender=="female"?"♀ FEMININO":"♂ MASCULINO",130,Color.FromArgb(0,163,224));
+
+        void CloseAi()
+        {
+            if(lealAiPanel==null)return;
+            var old=lealAiPanel; lealAiPanel=null;
+            Controls.Remove(old); old.Dispose();
+            lealAiButton?.BringToFront();
+        }
+
+        close.Click+=(_,_)=>CloseAi();
+        replay.Click+=async (_,_)=>{try{if(web.CoreWebView2!=null)await web.ExecuteScriptAsync("const v=document.getElementById('v');v.currentTime=0;v.muted=false;v.volume=1;v.play();");}catch{}};
+        switcher.Click+=(_,_)=>{
+            var next=GetSetting("leal_ai_gender","auto")=="female"?"male":"female";
+            if(GetSetting("leal_ai_gender","auto")=="auto")next=gender=="female"?"male":"female";
+            SetSetting("leal_ai_gender",next);
+            CloseAi();
+            ShowLealAiPanel(false);
+        };
+
+        bottom.Controls.Add(close);bottom.Controls.Add(replay);bottom.Controls.Add(switcher);
+        var right=new Panel{Dock=DockStyle.Fill,BackColor=Color.FromArgb(3,18,36)}; right.Controls.Add(body);right.Controls.Add(bottom);right.Controls.Add(head);
+        panel.Controls.Add(right);panel.Controls.Add(left);
+        Controls.Add(panel);
+
+        void PosAi()
+        {
+            if(lealAiPanel==null || lealAiPanel.IsDisposed)return;
             lealAiPanel.Left=Math.Max(12,ClientSize.Width-lealAiPanel.Width-22);
-            lealAiPanel.Top=Math.Max(70,ClientSize.Height-lealAiPanel.Height-status.Height-18);
-            lealAiPanel.BringToFront(); lealAiButton?.BringToFront();
+            lealAiPanel.Top=Math.Max(80,ClientSize.Height-lealAiPanel.Height-status.Height-18);
+            lealAiPanel.BringToFront();
+            lealAiButton?.BringToFront();
         }
         PosAi();
-        EventHandler? rh=null; rh=(_,_)=>PosAi(); Resize+=rh;
-        host.Disposed+=(_,_)=>{if(rh!=null)Resize-=rh;};
+        EventHandler? resizeHandler=null;
+        resizeHandler=(_,_)=>PosAi();
+        Resize+=resizeHandler;
+        panel.Disposed+=(_,_)=>{ if(resizeHandler!=null) Resize-=resizeHandler; };
 
-        try{
-            web.CreationProperties=new CoreWebView2CreationProperties{AdditionalBrowserArguments="--autoplay-policy=no-user-gesture-required"};
-            await web.EnsureCoreWebView2Async();
-            var path=Path.Combine(AppContext.BaseDirectory,"Assets",videoFile);
-            var uri=new Uri(path).AbsoluteUri;
-            var html=$@"<!doctype html><html><head><meta charset='utf-8'><style>
-html,body{{margin:0;width:100%;height:100%;overflow:hidden;background:#031224}}
-.stage{{position:relative;width:100%;height:100%;overflow:hidden}}
-#v{{position:absolute;left:0;bottom:0;width:100%;height:100%;object-fit:contain;clip-path:inset(100% 0 0 0);opacity:0;filter:blur(8px);animation:mat 1.55s cubic-bezier(.2,.72,.2,1) forwards}}
-.smoke{{position:absolute;left:50%;bottom:4%;width:190px;height:120px;transform:translateX(-50%);opacity:0;filter:blur(15px);background:radial-gradient(ellipse at 50% 80%,rgba(160,225,255,.72),rgba(60,160,220,.30) 38%,transparent 72%),radial-gradient(ellipse at 30% 50%,rgba(205,240,255,.42),transparent 58%),radial-gradient(ellipse at 72% 48%,rgba(110,205,255,.38),transparent 62%);animation:smoke 1.65s ease-out forwards}}
-.glow{{position:absolute;left:50%;bottom:3%;width:155px;height:38px;transform:translateX(-50%);border-radius:50%;background:radial-gradient(ellipse,rgba(90,205,255,.72),rgba(20,115,180,.18) 55%,transparent 75%);filter:blur(7px);opacity:0;animation:glow 1.7s ease-out forwards}}
-@keyframes mat{{0%{{clip-path:inset(100% 0 0 0);opacity:0;filter:blur(10px);transform:translateY(16px)}}30%{{opacity:.72}}100%{{clip-path:inset(0);opacity:1;filter:blur(0);transform:translateY(0)}}}}
-@keyframes smoke{{0%{{opacity:0;transform:translate(-50%,22px) scale(.65)}}28%{{opacity:.82}}70%{{opacity:.42;transform:translate(-50%,-42px) scale(1.22)}}100%{{opacity:0;transform:translate(-50%,-88px) scale(1.55)}}}}
-@keyframes glow{{0%{{opacity:0;transform:translateX(-50%) scale(.4)}}30%{{opacity:.95}}100%{{opacity:0;transform:translateX(-50%) scale(1.35)}}}}
-</style></head><body><div class='stage'><div class='glow'></div><div class='smoke'></div><video id='v' playsinline preload='auto'><source src='{uri}' type='video/mp4'></video></div><script>
-const v=document.getElementById('v');function go(){{v.muted=false;v.volume=1;const p=v.play();if(p&&p.catch)p.catch(()=>{{v.muted=true;v.play();}});}}setTimeout(go,1150);setTimeout(()=>{{v.muted=false;v.volume=1;v.play();}},1450);
-</script></body></html>";
-            web.NavigateToString(html);
-        }catch(Exception ex){MessageBox.Show("Não foi possível iniciar a LEAL AI: "+ex.Message,"LEAL AI");}
+        InitLealAiVideo(web,videoFile);
     }
 
     private void OpenSettings()
