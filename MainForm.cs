@@ -2465,7 +2465,34 @@ public sealed class MainForm : Form
             web.CoreWebView2.Settings.AreDefaultContextMenusEnabled=false;
             web.CoreWebView2.Settings.AreDevToolsEnabled=false;
             web.CoreWebView2.SetVirtualHostNameToFolderMapping("lealai.local",Path.Combine(AppContext.BaseDirectory,"Assets"),CoreWebView2HostResourceAccessKind.Allow);
-            var html = "<!doctype html><html><head><style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#031224}video{width:100%;height:100%;object-fit:contain;background:#031224}</style></head><body><video id='v' autoplay playsinline preload='auto'><source src='https://lealai.local/" + file + "' type='video/mp4'></video><script>const v=document.getElementById('v');function start(){v.muted=false;v.volume=1;const p=v.play();if(p&&p.catch)p.catch(()=>setTimeout(start,180));}v.addEventListener('loadedmetadata',start,{once:true});v.addEventListener('canplay',start,{once:true});setTimeout(start,250);setTimeout(start,700);</script></body></html>";
+            var html = "<!doctype html><html><head><style>"
+                + "html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#031224}"
+                + ".stage{position:relative;width:100%;height:100%;overflow:hidden}"
+                + "video{position:absolute;left:0;bottom:0;width:100%;height:100%;object-fit:contain;background:#031224;"
+                + "clip-path:inset(100% 0 0 0);opacity:0;filter:blur(8px);transform:translateY(20px);"
+                + "animation:materialize 1.55s cubic-bezier(.2,.72,.2,1) forwards}"
+                + ".smoke{position:absolute;left:50%;bottom:3%;width:190px;height:130px;transform:translateX(-50%);"
+                + "opacity:0;filter:blur(16px);background:"
+                + "radial-gradient(ellipse at 50% 80%,rgba(180,235,255,.78),rgba(60,165,225,.32) 40%,transparent 72%),"
+                + "radial-gradient(ellipse at 30% 50%,rgba(210,245,255,.45),transparent 58%),"
+                + "radial-gradient(ellipse at 72% 48%,rgba(100,200,255,.40),transparent 62%);"
+                + "animation:smoke 1.7s ease-out forwards}"
+                + ".glow{position:absolute;left:50%;bottom:2%;width:155px;height:42px;transform:translateX(-50%);"
+                + "border-radius:50%;background:radial-gradient(ellipse,rgba(90,205,255,.75),rgba(20,115,180,.18) 55%,transparent 76%);"
+                + "filter:blur(8px);opacity:0;animation:glow 1.7s ease-out forwards}"
+                + "@keyframes materialize{0%{clip-path:inset(100% 0 0 0);opacity:0;filter:blur(11px);transform:translateY(20px)}"
+                + "30%{opacity:.72}100%{clip-path:inset(0 0 0 0);opacity:1;filter:blur(0);transform:translateY(0)}}"
+                + "@keyframes smoke{0%{opacity:0;transform:translate(-50%,25px) scale(.6)}28%{opacity:.9}"
+                + "70%{opacity:.42;transform:translate(-50%,-42px) scale(1.25)}100%{opacity:0;transform:translate(-50%,-95px) scale(1.6)}}"
+                + "@keyframes glow{0%{opacity:0;transform:translateX(-50%) scale(.4)}30%{opacity:.95}"
+                + "100%{opacity:0;transform:translateX(-50%) scale(1.35)}}"
+                + "</style></head><body><div class='stage'><div class='glow'></div><div class='smoke'></div>"
+                + "<video id='v' autoplay playsinline preload='auto'><source src='https://lealai.local/" + file + "' type='video/mp4'></video>"
+                + "</div><script>const v=document.getElementById('v');function start(){v.muted=false;v.volume=1;"
+                + "const p=v.play();if(p&&p.catch)p.catch(()=>setTimeout(start,180));}"
+                + "v.addEventListener('loadedmetadata',()=>setTimeout(start,1150),{once:true});"
+                + "v.addEventListener('canplay',()=>setTimeout(start,1150),{once:true});"
+                + "setTimeout(start,1350);setTimeout(start,1750);</script></body></html>";
             web.NavigateToString(html);
         } catch { }
     }
@@ -2473,53 +2500,39 @@ public sealed class MainForm : Form
     private void ShowLealAiPanel(bool dailyGreeting)
     {
         if(lealAiPanel!=null && !lealAiPanel.IsDisposed){lealAiPanel.BringToFront();return;}
-        var data=GetLealAiSummary(); var hour=DateTime.Now.Hour;
-        var greeting=hour<12?"BOM DIA":hour<18?"BOA TARDE":"BOA NOITE";
-        var gender=GetLealAiGender(); var avatarName=gender=="female"?"LIA":"LEO";
-        var videoFile=gender=="female"?"leal_ai_feminino.mp4":"leal_ai_masculino.mp4";
-        string insight=data.lowStock>0?$"{data.lowStock} produto(s) precisam de atenção no estoque.":"Nenhum alerta crítico de estoque neste momento.";
-        string trend=data.salesCount>0?$"{data.salesCount} venda(s) hoje  •  R$ {data.salesTotal:N2}  •  {data.aboveAverage} produto(s) acima da média.":"Ainda não há vendas registradas hoje.";
 
+        var gender=GetLealAiGender();
+        var videoFile=gender=="female"?"leal_ai_feminino.mp4":"leal_ai_masculino.mp4";
+
+        // ETAPA 2.1 - TESTE CINEMATOGRÁFICO
+        // Sem caixa, sem cabeçalho e sem textos: apenas o avatar no canto.
         var panel=new Panel{
-            Width=Math.Min(720,Math.Max(560,ClientSize.Width-40)),
-            Height=Math.Min(450,Math.Max(360,ClientSize.Height-status.Height-80)),
+            Width=300,
+            Height=400,
             BackColor=Color.FromArgb(3,18,36),
-            BorderStyle=BorderStyle.FixedSingle
+            BorderStyle=BorderStyle.None
         };
         lealAiPanel=panel;
 
-        var left=new Panel{Dock=DockStyle.Left,Width=250,BackColor=Color.FromArgb(2,14,28)};
-        var web=new WebView2{Dock=DockStyle.Fill,DefaultBackgroundColor=Color.FromArgb(3,18,36)}; left.Controls.Add(web);
-        var head=new Label{Text=$"LEAL AI  •  {avatarName}\n{greeting}",Dock=DockStyle.Top,Height=94,Padding=new Padding(22,12,10,6),ForeColor=Color.White,Font=new Font("Segoe UI",15,FontStyle.Bold)};
-        var body=new Label{Text=$"ANÁLISE INTELIGENTE DO PDV\n\n{insight}\n\n{trend}",Dock=DockStyle.Fill,Padding=new Padding(24,14,24,8),ForeColor=Color.FromArgb(205,235,248),Font=new Font("Segoe UI",11),TextAlign=ContentAlignment.TopLeft};
-        var bottom=new FlowLayoutPanel{Dock=DockStyle.Bottom,Height=64,FlowDirection=FlowDirection.RightToLeft,Padding=new Padding(10),BackColor=Color.FromArgb(4,35,62)};
-        Button Btn(string t,int w,Color c){var b=new Button{Text=t,Width=w,Height=38,FlatStyle=FlatStyle.Flat,BackColor=c,ForeColor=Color.White};b.FlatAppearance.BorderSize=0;return b;}
-        var close=Btn("FECHAR",82,Color.FromArgb(4,70,112));
-        var replay=Btn("▶ REPETIR FALA",130,Color.FromArgb(0,120,170));
-        var switcher=Btn(gender=="female"?"♀ FEMININO":"♂ MASCULINO",130,Color.FromArgb(0,163,224));
+        var web=new WebView2{
+            Dock=DockStyle.Fill,
+            DefaultBackgroundColor=Color.FromArgb(3,18,36)
+        };
+        panel.Controls.Add(web);
+        Controls.Add(panel);
 
         void CloseAi()
         {
             if(lealAiPanel==null)return;
-            var old=lealAiPanel; lealAiPanel=null;
-            Controls.Remove(old); old.Dispose();
+            var old=lealAiPanel;
+            lealAiPanel=null;
+            Controls.Remove(old);
+            old.Dispose();
             lealAiButton?.BringToFront();
         }
 
-        close.Click+=(_,_)=>CloseAi();
-        replay.Click+=async (_,_)=>{try{if(web.CoreWebView2!=null)await web.ExecuteScriptAsync("const v=document.getElementById('v');v.currentTime=0;v.muted=false;v.volume=1;v.play();");}catch{}};
-        switcher.Click+=(_,_)=>{
-            var next=GetSetting("leal_ai_gender","auto")=="female"?"male":"female";
-            if(GetSetting("leal_ai_gender","auto")=="auto")next=gender=="female"?"male":"female";
-            SetSetting("leal_ai_gender",next);
-            CloseAi();
-            ShowLealAiPanel(false);
-        };
-
-        bottom.Controls.Add(close);bottom.Controls.Add(replay);bottom.Controls.Add(switcher);
-        var right=new Panel{Dock=DockStyle.Fill,BackColor=Color.FromArgb(3,18,36)}; right.Controls.Add(body);right.Controls.Add(bottom);right.Controls.Add(head);
-        panel.Controls.Add(right);panel.Controls.Add(left);
-        Controls.Add(panel);
+        // Clique duplo no avatar fecha somente durante este teste.
+        web.DoubleClick+=(_,_)=>CloseAi();
 
         void PosAi()
         {
@@ -2530,6 +2543,7 @@ public sealed class MainForm : Form
             lealAiButton?.BringToFront();
         }
         PosAi();
+
         EventHandler? resizeHandler=null;
         resizeHandler=(_,_)=>PosAi();
         Resize+=resizeHandler;
