@@ -1,0 +1,7 @@
+VÍDEO DE AJUDA OPCIONAL
+Coloque um vídeo MP4 com o nome:
+recuperar_senha.mp4
+nesta pasta Ajuda.
+
+O botão "ASSISTIR VÍDEO EXPLICATIVO" localizará o arquivo automaticamente.
+Enquanto o vídeo não existir, o guia visual interno continua funcionando.
