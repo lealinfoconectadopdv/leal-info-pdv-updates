@@ -2466,7 +2466,7 @@ public sealed class MainForm : Form
             web.CoreWebView2.Settings.AreDevToolsEnabled=false;
             web.CoreWebView2.SetVirtualHostNameToFolderMapping("lealai.local",Path.Combine(AppContext.BaseDirectory,"Assets"),CoreWebView2HostResourceAccessKind.Allow);
             var html = "<!doctype html><html><head><style>"
-                + "html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#031224}"
+                + "html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent}"
                 + ".stage{position:relative;width:100%;height:100%;overflow:hidden}"
                 + "video{position:absolute;z-index:5;left:0;bottom:0;width:100%;height:100%;object-fit:contain;background:transparent;clip-path:inset(100% 0 0 0);opacity:0;filter:blur(12px);transform:translateY(48px) scale(.92);animation:materialize 2.8s cubic-bezier(.12,.7,.18,1) forwards}"
                 + ".smoke{position:absolute;z-index:7;left:50%;bottom:-8%;pointer-events:none;opacity:0;border-radius:50%;mix-blend-mode:screen}"
@@ -2486,7 +2486,7 @@ public sealed class MainForm : Form
                 + "@keyframes ring{0%{opacity:0;transform:translateX(-50%) scale(.2)}22%{opacity:.9}55%{opacity:.62;transform:translate(-50%,-105px) scale(1.35)}100%{opacity:0;transform:translate(-50%,-245px) scale(2.25)}}"
                 + "@keyframes glow{0%{opacity:0;transform:translateX(-50%) scale(.18)}12%{opacity:1}55%{opacity:.9;transform:translateX(-50%) scale(1.25)}100%{opacity:0;transform:translateX(-50%) scale(1.9)}}"
                 + "</style></head><body><div class='stage'><div class='glow'></div><div class='smoke s0'></div><div class='smoke s1'></div><div class='smoke s2'></div><div class='smoke s3'></div><div class='smoke s4'></div><div class='smoke s5'></div><div class='ring'></div>"
-                + "<video id='v' autoplay playsinline preload='auto'><source src='https://lealai.local/" + file + "' type='video/mp4'></video>"
+                + "<video id='v' autoplay playsinline preload='auto'><source src='https://lealai.local/" + file + "' type='video/webm'></video>"
                 + "</div><script>const v=document.getElementById('v');function start(){v.muted=false;v.volume=1;const p=v.play();if(p&&p.catch)p.catch(()=>setTimeout(start,180));}v.addEventListener('loadedmetadata',()=>setTimeout(start,1850),{once:true});v.addEventListener('canplay',()=>setTimeout(start,1850),{once:true});setTimeout(start,2050);setTimeout(start,2450);</script></body></html>";
             web.NavigateToString(html);
         } catch { }
@@ -2497,21 +2497,21 @@ public sealed class MainForm : Form
         if(lealAiPanel!=null && !lealAiPanel.IsDisposed){lealAiPanel.BringToFront();return;}
 
         var gender=GetLealAiGender();
-        var videoFile="lia_teste_falante.mp4"; // V10_122 - teste LIA falante
+        var videoFile="lia_transparente.webm"; // V10_124 - LIA transparente VP9 alpha
 
         // ETAPA 2.1 - TESTE CINEMATOGRÁFICO
         // Sem caixa, sem cabeçalho e sem textos: apenas o avatar no canto.
         var panel=new Panel{
             Width=300,
             Height=400,
-            BackColor=Color.FromArgb(3,18,36),
+            BackColor=Color.Transparent,
             BorderStyle=BorderStyle.None
         };
         lealAiPanel=panel;
 
         var web=new WebView2{
             Dock=DockStyle.Fill,
-            DefaultBackgroundColor=Color.FromArgb(3,18,36)
+            DefaultBackgroundColor=Color.Transparent
         };
         panel.Controls.Add(web);
         Controls.Add(panel);
