@@ -2486,7 +2486,7 @@ public sealed class MainForm : Form
                 + "@keyframes ring{0%{opacity:0;transform:translateX(-50%) scale(.2)}22%{opacity:.9}55%{opacity:.62;transform:translate(-50%,-105px) scale(1.35)}100%{opacity:0;transform:translate(-50%,-245px) scale(2.25)}}"
                 + "@keyframes glow{0%{opacity:0;transform:translateX(-50%) scale(.18)}12%{opacity:1}55%{opacity:.9;transform:translateX(-50%) scale(1.25)}100%{opacity:0;transform:translateX(-50%) scale(1.9)}}"
                 + "</style></head><body><div class='stage'><div class='glow'></div><div class='smoke s0'></div><div class='smoke s1'></div><div class='smoke s2'></div><div class='smoke s3'></div><div class='smoke s4'></div><div class='smoke s5'></div><div class='ring'></div>"
-                + "<video id='v' autoplay playsinline preload='auto'><source src='https://lealai.local/" + file + "' type='video/webm'></video>"
+                + "<video id='v' autoplay playsinline preload='auto'><source src='https://lealai.local/" + file + "' type='video/mp4'></video>"
                 + "</div><script>const v=document.getElementById('v');function start(){v.muted=false;v.volume=1;const p=v.play();if(p&&p.catch)p.catch(()=>setTimeout(start,180));}v.addEventListener('loadedmetadata',()=>setTimeout(start,1850),{once:true});v.addEventListener('canplay',()=>setTimeout(start,1850),{once:true});setTimeout(start,2050);setTimeout(start,2450);</script></body></html>";
             web.NavigateToString(html);
         } catch { }
@@ -2497,7 +2497,7 @@ public sealed class MainForm : Form
         if(lealAiPanel!=null && !lealAiPanel.IsDisposed){lealAiPanel.BringToFront();return;}
 
         var gender=GetLealAiGender();
-        var videoFile="lia_teste_falante.webm"; // V10_122 - teste LIA falante
+        var videoFile="lia_teste_falante.mp4"; // V10_122 - teste LIA falante
 
         // ETAPA 2.1 - TESTE CINEMATOGRÁFICO
         // Sem caixa, sem cabeçalho e sem textos: apenas o avatar no canto.
