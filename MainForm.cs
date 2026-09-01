@@ -2460,7 +2460,7 @@ public sealed class MainForm : Form
     {
         try
         {
-            var opts = new CoreWebView2EnvironmentOptions("--autoplay-policy=no-user-gesture-required");
+            var opts = new CoreWebView2EnvironmentOptions("--autoplay-policy=no-user-gesture-required --disable-accelerated-video-decode --disable-gpu-video-decode");
             var env = await CoreWebView2Environment.CreateAsync(
                 null,
                 Path.Combine(Database.AppFolder, "WebView2_LEAL_AI"),
@@ -2522,7 +2522,7 @@ public sealed class MainForm : Form
         if(lealAiPanel!=null && !lealAiPanel.IsDisposed){lealAiPanel.BringToFront();return;}
 
         var gender=GetLealAiGender();
-        var videoFile="lia_transparente.webm"; // V10_126 - alpha refinado via canvas, base V10_125 preservada
+        var videoFile="lia_transparente.webm"; // V10_127 - força decoder VP9 por software para preservar alpha
 
         // ETAPA 2.1 - TESTE CINEMATOGRÁFICO
         // Sem caixa, sem cabeçalho e sem textos: apenas o avatar no canto.
