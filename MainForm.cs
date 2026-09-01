@@ -2465,27 +2465,29 @@ public sealed class MainForm : Form
             web.CoreWebView2.Settings.AreDefaultContextMenusEnabled=false;
             web.CoreWebView2.Settings.AreDevToolsEnabled=false;
             web.CoreWebView2.SetVirtualHostNameToFolderMapping("lealai.local",Path.Combine(AppContext.BaseDirectory,"Assets"),CoreWebView2HostResourceAccessKind.Allow);
-            web.CoreWebView2.WebMessageReceived += (_,e) => {
-                if(e.TryGetWebMessageAsString()=="lia-ended")
-                {
-                    BeginInvoke(new Action(()=>{
-                        if(lealAiPanel==null)return;
-                        var old=lealAiPanel; lealAiPanel=null;
-                        Controls.Remove(old); old.Dispose();
-                        lealAiButton?.BringToFront();
-                    }));
-                }
-            };
             var html = "<!doctype html><html><head><style>"
-                + "html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent!important}"
-                + ".stage{position:relative;width:100%;height:100%;overflow:hidden;background:transparent!important}"
-                + "video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:transparent!important}"
-                + "</style></head><body><div class='stage'>"
-                + "<video id='v' autoplay muted playsinline preload='auto'><source src='https://lealai.local/" + file + "' type='video/webm'></video>"
-                + "</div><script>const v=document.getElementById('v');"
-                + "v.addEventListener('ended',()=>chrome.webview.postMessage('lia-ended'));"
-                + "function start(){const p=v.play();if(p&&p.catch)p.catch(()=>setTimeout(start,120));}"
-                + "v.addEventListener('canplay',start,{once:true});setTimeout(start,250);</script></body></html>";
+                + "html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#031224}"
+                + ".stage{position:relative;width:100%;height:100%;overflow:hidden}"
+                + "video{position:absolute;z-index:5;left:0;bottom:0;width:100%;height:100%;object-fit:contain;background:transparent;clip-path:inset(100% 0 0 0);opacity:0;filter:blur(12px);transform:translateY(48px) scale(.92);animation:materialize 2.8s cubic-bezier(.12,.7,.18,1) forwards}"
+                + ".smoke{position:absolute;z-index:7;left:50%;bottom:-8%;pointer-events:none;opacity:0;border-radius:50%;mix-blend-mode:screen}"
+                + ".s0{width:360px;height:210px;filter:blur(22px);background:radial-gradient(ellipse,rgba(238,253,255,.98) 0%,rgba(110,215,255,.82) 25%,rgba(40,135,235,.42) 52%,transparent 76%);animation:base 3.4s ease-out forwards}"
+                + ".s1{width:125px;height:430px;filter:blur(17px);background:radial-gradient(ellipse at 50% 82%,rgba(240,254,255,.94),rgba(100,210,255,.68) 27%,rgba(38,125,230,.34) 55%,transparent 76%);animation:column 3.15s cubic-bezier(.12,.62,.2,1) forwards}"
+                + ".s2,.s3,.s4,.s5{width:210px;height:310px;filter:blur(20px);background:radial-gradient(ellipse at 50% 72%,rgba(220,250,255,.86),rgba(80,190,250,.52) 34%,rgba(35,110,220,.2) 58%,transparent 74%)}"
+                + ".s2{animation:left1 3.25s ease-out forwards}.s3{animation:right1 3.25s ease-out forwards}.s4{animation:left2 3.05s .18s ease-out forwards}.s5{animation:right2 3.05s .18s ease-out forwards}"
+                + ".ring{position:absolute;z-index:8;left:50%;bottom:3%;width:105px;height:34px;border:9px solid rgba(175,238,255,.75);border-radius:50%;filter:blur(7px);opacity:0;animation:ring 2.7s .25s ease-out forwards}"
+                + ".glow{position:absolute;z-index:3;left:50%;bottom:-1%;width:320px;height:85px;transform:translateX(-50%);border-radius:50%;background:radial-gradient(ellipse,rgba(210,250,255,1),rgba(70,185,255,.62) 38%,rgba(20,90,220,.22) 62%,transparent 78%);filter:blur(12px);opacity:0;animation:glow 3.2s ease-out forwards}"
+                + "@keyframes materialize{0%{clip-path:inset(100% 0 0 0);opacity:0;filter:blur(15px);transform:translateY(55px) scale(.90)}20%{opacity:.12}48%{clip-path:inset(48% 0 0 0);opacity:.62;filter:blur(7px)}72%{opacity:.92;filter:blur(2px)}100%{clip-path:inset(0 0 0 0);opacity:1;filter:blur(0);transform:translateY(0) scale(1)}}"
+                + "@keyframes base{0%{opacity:0;transform:translate(-50%,65px) scale(.25)}12%{opacity:1}42%{opacity:.98;transform:translate(-50%,-5px) scale(1.05)}72%{opacity:.68;transform:translate(-50%,-70px) scale(1.45)}100%{opacity:0;transform:translate(-50%,-145px) scale(2.05)}}"
+                + "@keyframes column{0%{opacity:0;transform:translate(-50%,150px) scale(.28,.16) rotate(0)}15%{opacity:1}45%{opacity:.92;transform:translate(-50%,10px) scale(.72,.88) rotate(10deg)}72%{opacity:.72;transform:translate(-50%,-115px) scale(1.0,1.2) rotate(-12deg)}100%{opacity:0;transform:translate(-50%,-285px) scale(1.4,1.55) rotate(18deg)}}"
+                + "@keyframes left1{0%{opacity:0;transform:translate(-48%,125px) rotate(8deg) scale(.22)}18%{opacity:.92}52%{opacity:.8;transform:translate(-105%,-25px) rotate(-28deg) scale(.9)}78%{opacity:.48;transform:translate(-138%,-125px) rotate(-48deg) scale(1.25)}100%{opacity:0;transform:translate(-160%,-245px) rotate(-68deg) scale(1.6)}}"
+                + "@keyframes right1{0%{opacity:0;transform:translate(-52%,125px) rotate(-8deg) scale(.22)}18%{opacity:.92}52%{opacity:.8;transform:translate(5%,-25px) rotate(28deg) scale(.9)}78%{opacity:.48;transform:translate(38%,-125px) rotate(48deg) scale(1.25)}100%{opacity:0;transform:translate(60%,-245px) rotate(68deg) scale(1.6)}}"
+                + "@keyframes left2{0%{opacity:0;transform:translate(-50%,150px) rotate(18deg) scale(.18)}24%{opacity:.78}58%{opacity:.62;transform:translate(-88%,-95px) rotate(-42deg) scale(.82)}100%{opacity:0;transform:translate(-125%,-300px) rotate(-85deg) scale(1.45)}}"
+                + "@keyframes right2{0%{opacity:0;transform:translate(-50%,150px) rotate(-18deg) scale(.18)}24%{opacity:.78}58%{opacity:.62;transform:translate(-12%,-95px) rotate(42deg) scale(.82)}100%{opacity:0;transform:translate(25%,-300px) rotate(85deg) scale(1.45)}}"
+                + "@keyframes ring{0%{opacity:0;transform:translateX(-50%) scale(.2)}22%{opacity:.9}55%{opacity:.62;transform:translate(-50%,-105px) scale(1.35)}100%{opacity:0;transform:translate(-50%,-245px) scale(2.25)}}"
+                + "@keyframes glow{0%{opacity:0;transform:translateX(-50%) scale(.18)}12%{opacity:1}55%{opacity:.9;transform:translateX(-50%) scale(1.25)}100%{opacity:0;transform:translateX(-50%) scale(1.9)}}"
+                + "</style></head><body><div class='stage'><div class='glow'></div><div class='smoke s0'></div><div class='smoke s1'></div><div class='smoke s2'></div><div class='smoke s3'></div><div class='smoke s4'></div><div class='smoke s5'></div><div class='ring'></div>"
+                + "<video id='v' autoplay playsinline preload='auto'><source src='https://lealai.local/" + file + "' type='video/webm'></video>"
+                + "</div><script>const v=document.getElementById('v');function start(){v.muted=false;v.volume=1;const p=v.play();if(p&&p.catch)p.catch(()=>setTimeout(start,180));}v.addEventListener('loadedmetadata',()=>setTimeout(start,1850),{once:true});v.addEventListener('canplay',()=>setTimeout(start,1850),{once:true});setTimeout(start,2050);setTimeout(start,2450);</script></body></html>";
             web.NavigateToString(html);
         } catch { }
     }
@@ -2495,21 +2497,21 @@ public sealed class MainForm : Form
         if(lealAiPanel!=null && !lealAiPanel.IsDisposed){lealAiPanel.BringToFront();return;}
 
         var gender=GetLealAiGender();
-        var videoFile="lia_aceno_transparente.webm";
+        var videoFile="lia_teste_falante.webm"; // V10_122 - teste LIA falante
 
         // ETAPA 2.1 - TESTE CINEMATOGRÁFICO
         // Sem caixa, sem cabeçalho e sem textos: apenas o avatar no canto.
         var panel=new Panel{
             Width=300,
             Height=400,
-            BackColor=Color.Transparent,
+            BackColor=Color.FromArgb(3,18,36),
             BorderStyle=BorderStyle.None
         };
         lealAiPanel=panel;
 
         var web=new WebView2{
             Dock=DockStyle.Fill,
-            DefaultBackgroundColor=Color.Transparent
+            DefaultBackgroundColor=Color.FromArgb(3,18,36)
         };
         panel.Controls.Add(web);
         Controls.Add(panel);
