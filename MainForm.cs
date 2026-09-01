@@ -2477,7 +2477,7 @@ public sealed class MainForm : Form
 
         // O holograma vira filho da própria imagem central do PDV.
         // Assim não existe Form, janela, cabeçalho, borda ou caixa atrás dele.
-        Control host = mainScreenPicture ?? this;
+        Control host = mainScreenPicture != null ? (Control)mainScreenPicture : this;
         host.Controls.Add(holo);
 
         void PosHologram()
