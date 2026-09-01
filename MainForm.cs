@@ -2522,7 +2522,7 @@ public sealed class MainForm : Form
         if(lealAiPanel!=null && !lealAiPanel.IsDisposed){lealAiPanel.BringToFront();return;}
 
         var gender=GetLealAiGender();
-        var videoFile="lia_transparente.webm"; // V10_125 - player WebView2 em origem local real
+        var videoFile="lia_transparente.webm"; // V10_126 - alpha refinado via canvas, base V10_125 preservada
 
         // ETAPA 2.1 - TESTE CINEMATOGRÁFICO
         // Sem caixa, sem cabeçalho e sem textos: apenas o avatar no canto.
