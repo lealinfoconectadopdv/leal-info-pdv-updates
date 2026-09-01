@@ -46,7 +46,6 @@ public sealed class MainForm : Form
                 ShowInitialSecuritySetup();
 
             OpenFirstAccessTutorial(true);
-            _ = ShowLealAiDailyGreetingAsync();
             _ = UpdateManager.CheckForUpdatesAsync(this, true);
         };
     }
@@ -2404,9 +2403,9 @@ public sealed class MainForm : Form
         ApplyFloatingTheme(f);f.ShowDialog(this);
     }
 
-    // V10.118 — LEAL AI premium: avatar animado com voz incorporada + dados reais do PDV.
+    // TESTE HOLOGRAMA — LIA integrada ao PDV, sem janela, sem voz e sem vídeo.
     private Button? lealAiButton;
-    private Panel? lealAiPanel;
+    private PictureBox? lealAiHologram;
 
     private void BuildLealAiButton()
     {
@@ -2419,23 +2418,12 @@ public sealed class MainForm : Form
         Controls.Add(lealAiButton); lealAiButton.BringToFront();
         void Pos(){ if(lealAiButton==null)return; lealAiButton.Left=Math.Max(8,ClientSize.Width-lealAiButton.Width-22); lealAiButton.Top=Math.Max(140,ClientSize.Height-lealAiButton.Height-status.Height-18); lealAiButton.BringToFront(); }
         Resize += (_,_)=>Pos(); Shown += (_,_)=>Pos(); Pos();
-        new ToolTip().SetToolTip(lealAiButton,"LEAL AI — abrir assistente inteligente");
-    }
-
-    private string GetLealAiGender()
-    {
-        var pref=GetSetting("leal_ai_gender","auto");
-        if(pref=="male" || pref=="female") return pref;
-        // alterna por dia e mantém o mesmo personagem durante todo o dia
-        return DateTime.Today.DayOfYear % 2 == 0 ? "female" : "male";
+        new ToolTip().SetToolTip(lealAiButton,"LEAL AI — mostrar/ocultar holograma");
     }
 
     private async Task ShowLealAiDailyGreetingAsync()
     {
-        await Task.Delay(2200); if(IsDisposed || !Visible)return;
-        var today=DateTime.Now.ToString("yyyy-MM-dd",CultureInfo.InvariantCulture);
-        if(GetSetting("leal_ai_last_greeting_date","")==today)return;
-        SetSetting("leal_ai_last_greeting_date",today); ShowLealAiPanel(true);
+        await Task.CompletedTask; // desativado neste teste: holograma só aparece ao tocar em AI
     }
 
     private (int lowStock,int aboveAverage,int salesCount,decimal salesTotal) GetLealAiSummary()
@@ -2450,126 +2438,65 @@ public sealed class MainForm : Form
         return(0,0,0,0m);
     }
 
-    private void ShowLealAiDemo()
-    {
-        if(lealAiPanel!=null && !lealAiPanel.IsDisposed){Controls.Remove(lealAiPanel);lealAiPanel.Dispose();lealAiPanel=null;}
-        ShowLealAiPanel(false);
-    }
-
-    private async void InitLealAiVideo(WebView2 web, string file)
-    {
-        try
-        {
-            var opts = new CoreWebView2EnvironmentOptions("--autoplay-policy=no-user-gesture-required --disable-accelerated-video-decode --disable-gpu-video-decode");
-            var env = await CoreWebView2Environment.CreateAsync(
-                null,
-                Path.Combine(Database.AppFolder, "WebView2_LEAL_AI"),
-                opts);
-
-            await web.EnsureCoreWebView2Async(env);
-
-            // Transparência real do WebView2.
-            web.DefaultBackgroundColor = Color.Transparent;
-            web.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
-            web.CoreWebView2.Settings.AreDevToolsEnabled = false;
-
-            // A pasta Assets vira um pequeno host local. Assim HTML e vídeo ficam
-            // na MESMA origem e o WebView2 não precisa abrir arquivo local via file://.
-            var assets = Path.Combine(AppContext.BaseDirectory, "Assets");
-            web.CoreWebView2.SetVirtualHostNameToFolderMapping(
-                "lealai.local",
-                assets,
-                CoreWebView2HostResourceAccessKind.Allow);
-
-            // Recebe mensagens do player. Quando o vídeo termina, a LIA some.
-            web.CoreWebView2.WebMessageReceived += (_, e) =>
-            {
-                try
-                {
-                    var msg = e.TryGetWebMessageAsString();
-                    if (msg == "video_terminou")
-                    {
-                        BeginInvoke((MethodInvoker)(() =>
-                        {
-                            if (lealAiPanel != null && !lealAiPanel.IsDisposed)
-                            {
-                                var old = lealAiPanel;
-                                lealAiPanel = null;
-                                Controls.Remove(old);
-                                old.Dispose();
-                                lealAiButton?.BringToFront();
-                            }
-                        }));
-                    }
-                }
-                catch { }
-            };
-
-            // IMPORTANTE: navegamos para um HTML REAL dentro de Assets.
-            // Isso elimina a parte mais suspeita do teste anterior: NavigateToString
-            // carregando um vídeo de outra origem virtual.
-            web.CoreWebView2.Navigate(
-                "https://lealai.local/lia_avatar.html?file=" + Uri.EscapeDataString(file));
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine("LIA WebView2: " + ex.Message);
-        }
-    }
+    private void ShowLealAiDemo() => ShowLealAiPanel(false);
 
     private void ShowLealAiPanel(bool dailyGreeting)
     {
-        if(lealAiPanel!=null && !lealAiPanel.IsDisposed){lealAiPanel.BringToFront();return;}
-
-        var gender=GetLealAiGender();
-        var videoFile="lia_transparente.webm"; // V10_128 - holograma com recorte de fundo por borda + scanlines
-
-        // ETAPA 2.1 - TESTE CINEMATOGRÁFICO
-        // Sem caixa, sem cabeçalho e sem textos: apenas o avatar no canto.
-        var panel=new Panel{
-            Width=300,
-            Height=400,
-            BackColor=Color.Transparent,
-            BorderStyle=BorderStyle.None
-        };
-        lealAiPanel=panel;
-
-        var web=new WebView2{
-            Dock=DockStyle.Fill,
-            DefaultBackgroundColor=Color.Transparent
-        };
-        panel.Controls.Add(web);
-        Controls.Add(panel);
-
-        void CloseAi()
+        // Segundo toque no AI oculta o holograma.
+        if(lealAiHologram!=null && !lealAiHologram.IsDisposed)
         {
-            if(lealAiPanel==null)return;
-            var old=lealAiPanel;
-            lealAiPanel=null;
-            Controls.Remove(old);
+            var old=lealAiHologram;
+            lealAiHologram=null;
+            old.Parent?.Controls.Remove(old);
             old.Dispose();
             lealAiButton?.BringToFront();
+            return;
         }
 
-        // Clique duplo no avatar fecha somente durante este teste.
-        web.DoubleClick+=(_,_)=>CloseAi();
-
-        void PosAi()
+        var imagePath=Path.Combine(AppContext.BaseDirectory,"Assets","lia_holograma.png");
+        if(!File.Exists(imagePath))
         {
-            if(lealAiPanel==null || lealAiPanel.IsDisposed)return;
-            lealAiPanel.Left=Math.Max(12,ClientSize.Width-lealAiPanel.Width-22);
-            lealAiPanel.Top=Math.Max(80,ClientSize.Height-lealAiPanel.Height-status.Height-18);
-            lealAiPanel.BringToFront();
+            MessageBox.Show("Arquivo do holograma não encontrado: Assets\\lia_holograma.png","LEAL AI");
+            return;
+        }
+
+        Image hologramImage;
+        try { using var temp=Image.FromFile(imagePath); hologramImage=new Bitmap(temp); }
+        catch { return; }
+
+        var holo=new PictureBox {
+            Width=340,
+            Height=575,
+            SizeMode=PictureBoxSizeMode.Zoom,
+            BackColor=Color.Transparent,
+            Image=hologramImage,
+            Cursor=Cursors.Hand,
+            TabStop=false
+        };
+        lealAiHologram=holo;
+
+        // O holograma vira filho da própria imagem central do PDV.
+        // Assim não existe Form, janela, cabeçalho, borda ou caixa atrás dele.
+        Control host = mainScreenPicture ?? this;
+        host.Controls.Add(holo);
+
+        void PosHologram()
+        {
+            if(lealAiHologram==null || lealAiHologram.IsDisposed)return;
+            holo.Left=Math.Max(8,host.ClientSize.Width-holo.Width-28);
+            holo.Top=Math.Max(8,host.ClientSize.Height-holo.Height-10);
+            holo.BringToFront();
             lealAiButton?.BringToFront();
         }
-        PosAi();
+        PosHologram();
 
         EventHandler? resizeHandler=null;
-        resizeHandler=(_,_)=>PosAi();
-        Resize+=resizeHandler;
-        panel.Disposed+=(_,_)=>{ if(resizeHandler!=null) Resize-=resizeHandler; };
+        resizeHandler=(_,_)=>PosHologram();
+        host.Resize+=resizeHandler;
+        holo.Disposed+=(_,_)=>{ if(resizeHandler!=null) host.Resize-=resizeHandler; hologramImage.Dispose(); };
 
-        InitLealAiVideo(web,videoFile);
+        // Clique duplo direto no holograma também oculta.
+        holo.DoubleClick+=(_,_)=>ShowLealAiPanel(false);
     }
 
     private void OpenSettings()

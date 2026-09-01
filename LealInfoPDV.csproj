@@ -8,9 +8,9 @@
     <AssemblyName>LealInfoPDV</AssemblyName>
     <RootNamespace>LealInfoPDV</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <Version>10.128.0</Version>
-    <AssemblyVersion>10.128.0.0</AssemblyVersion>
-    <FileVersion>10.128.0.0</FileVersion>
+    <Version>10.129.0</Version>
+    <AssemblyVersion>10.129.0.0</AssemblyVersion>
+    <FileVersion>10.129.0.0</FileVersion>
       <ApplicationIcon>Assets\lealinfo.ico</ApplicationIcon>
   </PropertyGroup>
 
@@ -31,12 +31,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\*.mp4">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Assets\*.webm">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Assets\*.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
