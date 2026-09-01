@@ -2522,7 +2522,7 @@ public sealed class MainForm : Form
         if(lealAiPanel!=null && !lealAiPanel.IsDisposed){lealAiPanel.BringToFront();return;}
 
         var gender=GetLealAiGender();
-        var videoFile="lia_transparente.webm"; // V10_127 - força decoder VP9 por software para preservar alpha
+        var videoFile="lia_transparente.webm"; // V10_128 - holograma com recorte de fundo por borda + scanlines
 
         // ETAPA 2.1 - TESTE CINEMATOGRÁFICO
         // Sem caixa, sem cabeçalho e sem textos: apenas o avatar no canto.
