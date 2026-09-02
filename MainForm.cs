@@ -2524,7 +2524,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent
             // depois da inicialização. Usar BackColor = Color.Transparent
             // no controle WinForms causa a exceção:
             // "O controle não dá suporte a cores da tela de fundo transparente."
-            holo.CoreWebView2Controller.DefaultBackgroundColor = Color.Transparent;
+            holo.DefaultBackgroundColor = Color.Transparent;
 
             holo.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
             holo.CoreWebView2.Settings.AreDevToolsEnabled = false;
