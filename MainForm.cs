@@ -2493,8 +2493,6 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent
         {
             Width = 345,
             Height = 570,
-            BackColor = Color.Transparent,
-            DefaultBackgroundColor = Color.Transparent,
             TabStop = false
         };
         lealAiHologram = holo;
@@ -2521,6 +2519,13 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent
         {
             await holo.EnsureCoreWebView2Async();
             if (holo.IsDisposed) return;
+
+            // A transparência do WebView2 deve ser aplicada no controller,
+            // depois da inicialização. Usar BackColor = Color.Transparent
+            // no controle WinForms causa a exceção:
+            // "O controle não dá suporte a cores da tela de fundo transparente."
+            holo.CoreWebView2Controller.DefaultBackgroundColor = Color.Transparent;
+
             holo.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
             holo.CoreWebView2.Settings.AreDevToolsEnabled = false;
             holo.CoreWebView2.Settings.IsStatusBarEnabled = false;
