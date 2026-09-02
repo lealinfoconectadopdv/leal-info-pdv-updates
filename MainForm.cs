@@ -2470,10 +2470,10 @@ public sealed class MainForm : Form
         string html = """
 <!doctype html><html><head><meta charset="utf-8"><style>
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent}
-#stage{position:absolute;inset:0;overflow:hidden;background:transparent;filter:drop-shadow(0 0 8px rgba(0,215,255,.85))}
+#stage{position:absolute;inset:0;overflow:hidden;background:transparent}
 #beam{position:absolute;left:13%;right:13%;bottom:3%;height:82%;background:linear-gradient(to top,rgba(0,225,255,.34),rgba(0,180,255,.10) 58%,transparent);clip-path:polygon(43% 100%,57% 100%,88% 0,12% 0);filter:blur(9px);animation:beam 2.2s ease-in-out infinite}
 #lia{position:absolute;left:3%;right:3%;bottom:5%;width:94%;height:91%;object-fit:contain;opacity:.70;mix-blend-mode:screen;filter:saturate(1.45) contrast(1.12) brightness(1.20) drop-shadow(0 0 5px #8ef9ff) drop-shadow(0 0 16px #00c8ff) drop-shadow(0 0 30px #007cff);animation:flicker 3.7s infinite}
-.scan{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(to bottom,rgba(210,255,255,.10) 0 1px,rgba(0,205,255,.015) 1px 5px);mix-blend-mode:screen;opacity:.48;animation:scan 4.8s linear infinite}
+.scan{position:absolute;left:4%;right:4%;top:3%;bottom:3%;pointer-events:none;background:repeating-linear-gradient(to bottom,rgba(210,255,255,.10) 0 1px,rgba(0,205,255,.015) 1px 5px);mix-blend-mode:screen;opacity:.48;animation:scan 4.8s linear infinite;-webkit-mask-image:radial-gradient(ellipse at 50% 55%,#000 0%,#000 42%,rgba(0,0,0,.78) 58%,rgba(0,0,0,.28) 72%,transparent 86%);mask-image:radial-gradient(ellipse at 50% 55%,#000 0%,#000 42%,rgba(0,0,0,.78) 58%,rgba(0,0,0,.28) 72%,transparent 86%)}
 .glitch{position:absolute;left:8%;right:8%;height:2px;background:#c8fbff;opacity:0;box-shadow:0 0 9px #00dcff;animation:glitch 4.6s infinite}
 #g1{top:31%}#g2{top:52%;animation-delay:1.3s}#g3{top:70%;animation-delay:2.5s}
 #base{position:absolute;left:18%;right:18%;bottom:1%;height:10%;border:2px solid rgba(115,245,255,.92);border-radius:50%;box-shadow:0 0 8px #aefaff,0 0 25px #00cfff,0 0 48px #007cff,inset 0 0 18px rgba(0,225,255,.75);transform:perspective(180px) rotateX(66deg);animation:basePulse 1.7s ease-in-out infinite}
