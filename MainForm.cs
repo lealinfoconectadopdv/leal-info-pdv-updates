@@ -599,7 +599,7 @@ public sealed class MainForm : Form
             Width = 275,
             Height = 185,
             BackColor = Blue,
-            Anchor = AnchorStyles.Bottom | AnchorStyles.Right
+            Anchor = AnchorStyles.Top | AnchorStyles.Right
         };
         var mt = new Label
         {
@@ -623,7 +623,7 @@ public sealed class MainForm : Form
         body.Resize += (_, _) =>
         {
             monitor.Left = Math.Max(10, body.ClientSize.Width - monitor.Width - 20);
-            monitor.Top = Math.Max(10, body.ClientSize.Height - monitor.Height - 45);
+            monitor.Top = 18;
         };
 
         status.BackColor = Blue;
@@ -2465,8 +2465,8 @@ public sealed class MainForm : Form
         catch { return; }
 
         var holo=new PictureBox {
-            Width=340,
-            Height=575,
+            Width=315,
+            Height=535,
             SizeMode=PictureBoxSizeMode.Zoom,
             BackColor=Color.Transparent,
             Image=hologramImage,
@@ -2477,14 +2477,14 @@ public sealed class MainForm : Form
 
         // O holograma vira filho da própria imagem central do PDV.
         // Assim não existe Form, janela, cabeçalho, borda ou caixa atrás dele.
-        Control host = mainScreenPicture != null ? (Control)mainScreenPicture : this;
+        Control host = mainScreenPicture ?? this;
         host.Controls.Add(holo);
 
         void PosHologram()
         {
             if(lealAiHologram==null || lealAiHologram.IsDisposed)return;
-            holo.Left=Math.Max(8,host.ClientSize.Width-holo.Width-28);
-            holo.Top=Math.Max(8,host.ClientSize.Height-holo.Height-10);
+            holo.Left=Math.Max(8,host.ClientSize.Width-holo.Width-24);
+            holo.Top=Math.Max(8,host.ClientSize.Height-holo.Height-6);
             holo.BringToFront();
             lealAiButton?.BringToFront();
         }
