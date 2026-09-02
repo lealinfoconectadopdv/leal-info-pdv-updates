@@ -26,9 +26,9 @@ jobs:
       - name: Fabricar Setup.exe
         shell: powershell
         run: '& "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "INSTALADOR_LEAL_INFO_PDV_V10_129.iss"'
-      - name: Guardar Setup
+            - name: Guardar Setup
         uses: actions/upload-artifact@v4
         with:
-        name: Setup_LEAL_INFO_PDV_V10_129
-        path: SETUP_PRONTO/Setup_LEAL_INFO_PDV_V10_129.exe
-      if-no-files-found: error
+          name: Setup_LEAL_INFO_PDV_V10_129
+          path: SETUP_PRONTO/Setup_LEAL_INFO_PDV_V10_129.exe
+          if-no-files-found: error
