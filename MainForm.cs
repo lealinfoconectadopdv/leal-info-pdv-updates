@@ -22,7 +22,7 @@ public sealed class MainForm : Form
 
     public MainForm()
     {
-        Text = "LEAL INFO CONECTADO - SISTEMA PDV - V10.118";
+        Text = "LEAL INFO CONECTADO - SISTEMA PDV - V10.129";
         WindowState = FormWindowState.Maximized;
         MinimumSize = new Size(1200, 720);
         BackColor = Color.White;
@@ -2505,11 +2505,8 @@ html,body{
   clip-path:inset(100% 0 0 0);
   opacity:0;
   filter:brightness(1.03) contrast(1.03);
-  transform-origin:50% 88%;
-  will-change:transform,filter;
   animation:rebuild 2.8s cubic-bezier(.18,.72,.2,1) .45s forwards,
-            settle 3.2s ease-in-out 3.4s infinite,
-            liaIdle 4.8s ease-in-out 3.4s infinite;
+            settle 3.2s ease-in-out 3.4s infinite;
 }
 #fx{
   position:absolute;
@@ -2543,12 +2540,6 @@ html,body{
 @keyframes settle{
   0%,100%{filter:brightness(1.03) contrast(1.03)}
   50%{filter:brightness(1.08) contrast(1.04)}
-}
-@keyframes liaIdle{
-  0%,100%{transform:translate3d(0,0,0) rotate(0deg) scale(1)}
-  25%{transform:translate3d(1.5px,-2px,0) rotate(.18deg) scale(1.002)}
-  50%{transform:translate3d(0,-5px,0) rotate(0deg) scale(1.004)}
-  75%{transform:translate3d(-1.5px,-2px,0) rotate(-.18deg) scale(1.002)}
 }
 .info{
   position:absolute;
