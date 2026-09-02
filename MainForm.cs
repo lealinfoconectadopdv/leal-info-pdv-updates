@@ -2517,13 +2517,22 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent
 
         try
         {
-            await holo.EnsureCoreWebView2Async();
+            // Usa uma pasta gravável do usuário para os dados do WebView2.
+            // Isso evita E_ACCESSDENIED quando o PDV está instalado em uma pasta protegida.
+            string webView2DataFolder = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "LealInfoPDV",
+                "WebView2");
+
+            Directory.CreateDirectory(webView2DataFolder);
+
+            var webView2Environment =
+                await Microsoft.Web.WebView2.Core.CoreWebView2Environment.CreateAsync(
+                    userDataFolder: webView2DataFolder);
+
+            await holo.EnsureCoreWebView2Async(webView2Environment);
             if (holo.IsDisposed) return;
 
-            // A transparência do WebView2 deve ser aplicada no controller,
-            // depois da inicialização. Usar BackColor = Color.Transparent
-            // no controle WinForms causa a exceção:
-            // "O controle não dá suporte a cores da tela de fundo transparente."
             holo.DefaultBackgroundColor = Color.Transparent;
 
             holo.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
