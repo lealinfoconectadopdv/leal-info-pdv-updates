@@ -9,6 +9,7 @@ permissions:
 jobs:
   gerar-setup:
     runs-on: windows-latest
+
     steps:
       - name: Baixar projeto
         uses: actions/checkout@v4
@@ -23,6 +24,18 @@ jobs:
 
       - name: Publicar LEAL INFO PDV
         run: dotnet publish LealInfoPDV.csproj -c Release -r win-x64 --self-contained true -o publish_setup
+
+      - name: FORCAR VIDEO DA LIA NO SETUP
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory -Force -Path "publish_setup\Assets"
+          Copy-Item "Assets\leal_ai_feminino_transparente.webm" "publish_setup\Assets\leal_ai_feminino_transparente.webm" -Force
+
+          if (!(Test-Path "publish_setup\Assets\leal_ai_feminino_transparente.webm")) {
+              throw "ERRO: VIDEO DA LIA NAO ENTROU NO PUBLISH"
+          }
+
+          Write-Host "OK - VIDEO DA LIA ESTA NO SETUP"
 
       - name: Instalar Inno Setup
         shell: powershell
