@@ -2406,7 +2406,6 @@ public sealed class MainForm : Form
     // LIA integrada ao PDV — holograma com vídeo, voz e lip sync preservando a materialização.
     private Button? lealAiButton;
     private WebView2? lealAiHologram;
-    private SpeechSynthesizer? lealAiSpeech;
 
     private void BuildLealAiButton()
     {
@@ -2450,22 +2449,14 @@ public sealed class MainForm : Form
             old.Parent?.Controls.Remove(old);
             old.Dispose();
 
-            try
-            {
-                lealAiSpeech?.SpeakAsyncCancelAll();
-                lealAiSpeech?.Dispose();
-            }
-            catch { }
-            lealAiSpeech = null;
-
             lealAiButton?.BringToFront();
             return;
         }
 
-        var videoPath = Path.Combine(AppContext.BaseDirectory, "Assets", "leal_ai_feminino.mp4");
+        var videoPath = Path.Combine(AppContext.BaseDirectory, "Assets", "leal_ai_feminino_transparente.webm");
         if (!File.Exists(videoPath))
         {
-            MessageBox.Show("Arquivo de vídeo da LIA não encontrado: Assets\\leal_ai_feminino.mp4", "LEAL AI");
+            MessageBox.Show("Arquivo de vídeo da LIA não encontrado: Assets\\leal_ai_feminino_transparente.webm", "LEAL AI");
             return;
         }
 
@@ -2556,8 +2547,8 @@ html,body{
 <body>
 <div class="stage">
   <div class="lia-wrap">
-   <video id="lia" preload="auto" autoplay muted loop playsinline>
-      <source src="https://appassets.local/leal_ai_feminino.mp4" type="video/mp4">
+   <video id="lia" preload="auto" autoplay playsinline>
+      <source src="https://appassets.local/leal_ai_feminino_transparente.webm" type="video/webm">
     </video>
     <canvas id="fx"></canvas>
     <div class="scan"></div>
@@ -2627,8 +2618,8 @@ requestAnimationFrame(animate);
 
 // Mantém o vídeo da LIA realmente ativo no WebView2.
 const lia=document.getElementById('lia');
-lia.muted=true;
-lia.loop=true;
+lia.muted=false;
+lia.loop=false;
 lia.autoplay=true;
 
 function iniciarLia(){
@@ -2640,7 +2631,12 @@ function iniciarLia(){
 
 lia.addEventListener('loadeddata', iniciarLia);
 lia.addEventListener('canplay', iniciarLia);
-lia.addEventListener('pause', iniciarLia);
+lia.addEventListener('ended',()=>{
+  try{
+    lia.currentTime=Math.max(0, lia.duration-0.04);
+    lia.pause();
+  }catch(e){}
+});
 
 setTimeout(iniciarLia,250);
 setTimeout(iniciarLia,3250);
@@ -2704,58 +2700,6 @@ holo.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
 
             holo.NavigateToString(html);
 
-            // A materialização leva cerca de 3,2 s. Depois dela, a LIA fala.
-            await Task.Delay(3600);
-            if (holo.IsDisposed || lealAiHologram != holo) return;
-
-            try
-            {
-                lealAiSpeech?.SpeakAsyncCancelAll();
-                lealAiSpeech?.Dispose();
-
-                lealAiSpeech = new SpeechSynthesizer
-                {
-                    Volume = 100,
-                    Rate = 0
-                };
-
-                // Prefere voz feminina em português do Brasil, quando instalada.
-                var vozPtBrFeminina = lealAiSpeech
-                    .GetInstalledVoices()
-                    .Select(v => v.VoiceInfo)
-                    .FirstOrDefault(v =>
-                        v.Culture.Name.Equals("pt-BR", StringComparison.OrdinalIgnoreCase) &&
-                        v.Gender == VoiceGender.Female);
-
-                var vozPtBr = lealAiSpeech
-                    .GetInstalledVoices()
-                    .Select(v => v.VoiceInfo)
-                    .FirstOrDefault(v =>
-                        v.Culture.Name.Equals("pt-BR", StringComparison.OrdinalIgnoreCase));
-
-                var voz = vozPtBrFeminina ?? vozPtBr;
-                if (voz != null)
-                    lealAiSpeech.SelectVoice(voz.Name);
-
-                string fala;
-                if (dailyGreeting)
-                {
-                    fala = "Olá. Eu sou a LIA, sua assistente inteligente do LEAL INFO PDV. Estou pronta para ajudar.";
-                }
-                else
-                {
-                    var resumo = GetLealAiSummary();
-                    fala = $"Olá. Eu sou a LIA, sua assistente inteligente do LEAL INFO PDV. " +
-                           $"Hoje foram registradas {resumo.salesCount} vendas, totalizando {resumo.salesTotal:C2}. " +
-                           $"Existem {resumo.lowStock} produtos abaixo do estoque mínimo. Estou pronta para ajudar.";
-                }
-
-                lealAiSpeech.SpeakAsync(fala);
-            }
-            catch
-            {
-                // Se a máquina não tiver mecanismo de voz disponível, o holograma continua funcionando.
-            }
         }
         catch (Exception ex)
         {
