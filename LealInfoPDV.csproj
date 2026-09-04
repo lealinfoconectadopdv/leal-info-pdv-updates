@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
@@ -11,7 +11,7 @@
     <Version>10.129.0</Version>
     <AssemblyVersion>10.129.0.0</AssemblyVersion>
     <FileVersion>10.129.0.0</FileVersion>
-      <ApplicationIcon>Assets\lealinfo.ico</ApplicationIcon>
+    <ApplicationIcon>Assets\lealinfo.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,16 +21,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Assets\*.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+
     <Content Include="Assets\*.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+
     <Content Include="Assets\*.mp4">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+
+    <Content Include="Assets\*.webm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
