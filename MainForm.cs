@@ -2452,10 +2452,10 @@ public sealed class MainForm : Form
             return;
         }
 
-        var videoPath = Path.Combine(AppContext.BaseDirectory, "Assets", "leal_ai_feminino.mp4");
+        var videoPath = Path.Combine(AppContext.BaseDirectory, "Assets", "leal_ai_feminino_transparente.webm");
         if (!File.Exists(videoPath))
         {
-            MessageBox.Show("Arquivo de vídeo da LIA não encontrado: Assets\\leal_ai_feminino.mp4", "LEAL AI");
+            MessageBox.Show("Arquivo de vídeo da LIA não encontrado: Assets\\leal_ai_feminino_transparente.webm", "LEAL AI");
             return;
         }
 
@@ -2546,7 +2546,7 @@ html,body{
 <body>
 <div class="stage">
   <div class="lia-wrap">
-    <video id="lia" preload="auto" playsinline><source src="https://appassets.local/leal_ai_feminino.mp4" type="video/mp4"></video>
+   <video id="lia" preload="auto" playsinline><source src="https://appassets.local/leal_ai_feminino_transparente.webm" type="video/webm"></video>
     <canvas id="fx"></canvas>
     <div class="scan"></div>
   </div>
