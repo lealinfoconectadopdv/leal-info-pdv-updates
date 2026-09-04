@@ -29,7 +29,10 @@ jobs:
         shell: powershell
         run: |
           New-Item -ItemType Directory -Force -Path "publish_setup\Assets"
-          Copy-Item "Assets\leal_ai_feminino_transparente.webm" "publish_setup\Assets\leal_ai_feminino_transparente.webm" -Force
+
+          Copy-Item "leal_ai_feminino_transparente.webm" `
+                    "publish_setup\Assets\leal_ai_feminino_transparente.webm" `
+                    -Force
 
           if (!(Test-Path "publish_setup\Assets\leal_ai_feminino_transparente.webm")) {
               throw "ERRO: VIDEO DA LIA NAO ENTROU NO PUBLISH"
