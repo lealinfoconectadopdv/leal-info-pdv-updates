@@ -5,6 +5,7 @@ on:
     branches: [ main ]
     paths:
       - 'RELEASE_V10_130.trigger'
+      - '.github/workflows/release_update_v10_130.yml'
 
 permissions:
   contents: write
@@ -45,8 +46,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release delete v10.130 --yes 2>$null
+          gh release view v10.130 *> $null
+          if ($LASTEXITCODE -eq 0) {
+            gh release delete v10.130 --yes
+          }
+          git ls-remote --tags origin refs/tags/v10.130 | Out-Null
           git push origin :refs/tags/v10.130 2>$null
+          $global:LASTEXITCODE = 0
           gh release create v10.130 'LEAL_INFO_PDV_UPDATE_V10_130.zip' --title 'LEAL INFO PDV V10.130' --notes 'Atualizacao do modulo de Vendas e correcoes de estabilidade.'
 
       - name: Atualizar manifesto somente apos release pronta
