@@ -169,6 +169,16 @@ public static class Database
             value TEXT
         );
 
+        -- Vendas: índices seguros para bancos novos e já existentes.
+        -- Aceleram fechamento, histórico, cupom, baixa de estoque e conciliação
+        -- sem alterar os dados nem o fluxo atual do PDV.
+        CREATE INDEX IF NOT EXISTS idx_products_barcode ON products(barcode);
+        CREATE INDEX IF NOT EXISTS idx_sales_sold_at ON sales(sold_at DESC);
+        CREATE INDEX IF NOT EXISTS idx_sale_items_sale_id ON sale_items(sale_id);
+        CREATE INDEX IF NOT EXISTS idx_sale_items_product_id ON sale_items(product_id);
+        CREATE INDEX IF NOT EXISTS idx_sale_payments_sale_id ON sale_payments(sale_id);
+        CREATE INDEX IF NOT EXISTS idx_cash_movements_sale_id ON cash_movements(sale_id);
+
         INSERT OR IGNORE INTO settings(key,value) VALUES('company','LEAL INFO CONECTADO');
         INSERT OR IGNORE INTO settings(key,value) VALUES('operator','ADMIN');
         INSERT OR IGNORE INTO settings(key,value) VALUES('company_registered','0');
