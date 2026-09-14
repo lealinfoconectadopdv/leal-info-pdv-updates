@@ -1,0 +1,67 @@
+name: Publicar Atualizacao LEAL INFO PDV V10.130
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'RELEASE_V10_130.trigger'
+
+permissions:
+  contents: write
+
+jobs:
+  publicar-atualizacao:
+    runs-on: windows-latest
+
+    steps:
+      - name: Baixar projeto
+        uses: actions/checkout@v4
+
+      - name: Instalar .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Preparar versao V10.130
+        shell: powershell
+        run: |
+          (Get-Content UpdateManager.cs -Raw).Replace('public const string CurrentVersion = "10.118";','public const string CurrentVersion = "10.130";') | Set-Content UpdateManager.cs -Encoding UTF8
+          (Get-Content LealInfoPDV.csproj -Raw).Replace('<Version>10.129.0</Version>','<Version>10.130.0</Version>').Replace('<AssemblyVersion>10.129.0.0</AssemblyVersion>','<AssemblyVersion>10.130.0.0</AssemblyVersion>').Replace('<FileVersion>10.129.0.0</FileVersion>','<FileVersion>10.130.0.0</FileVersion>') | Set-Content LealInfoPDV.csproj -Encoding UTF8
+          (Get-Content MainForm.cs -Raw).Replace('LEAL INFO CONECTADO - SISTEMA PDV - V10.118','LEAL INFO CONECTADO - SISTEMA PDV - V10.130') | Set-Content MainForm.cs -Encoding UTF8
+
+      - name: Restaurar dependencias
+        run: dotnet restore LealInfoPDV.csproj
+
+      - name: Publicar pacote de atualizacao
+        run: dotnet publish LealInfoPDV.csproj -c Release -r win-x64 --self-contained true -o publish_update
+
+      - name: Compactar pacote
+        shell: powershell
+        run: |
+          Compress-Archive -Path 'publish_update\*' -DestinationPath 'LEAL_INFO_PDV_UPDATE_V10_130.zip' -Force
+
+      - name: Publicar release
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete v10.130 --yes 2>$null
+          git push origin :refs/tags/v10.130 2>$null
+          gh release create v10.130 'LEAL_INFO_PDV_UPDATE_V10_130.zip' --title 'LEAL INFO PDV V10.130' --notes 'Atualizacao do modulo de Vendas e correcoes de estabilidade.'
+
+      - name: Atualizar manifesto somente apos release pronta
+        shell: powershell
+        run: |
+          $hash = (Get-FileHash 'LEAL_INFO_PDV_UPDATE_V10_130.zip' -Algorithm SHA256).Hash
+          $json = @{
+            Version = '10.130'
+            PackageUrl = 'https://github.com/lealinfoconectadopdv/leal-info-pdv-updates/releases/download/v10.130/LEAL_INFO_PDV_UPDATE_V10_130.zip'
+            Sha256 = $hash
+            Notes = 'Atualizacao do modulo de Vendas e correcoes de estabilidade.'
+          } | ConvertTo-Json
+          Set-Content -Path 'pdv-manifest.json' -Value $json -Encoding UTF8
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add pdv-manifest.json
+          git commit -m 'release: publicar V10.130 no atualizador'
+          git push
